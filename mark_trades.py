@@ -26,14 +26,15 @@ def filter_trade():
             origin_memo = re.sub(unicode(pattern), '', memo)
             if tra['which'] == 'pre':
                 cur.execute(empty_mark, (origin_memo, tra['tradeNid']))
+                con.commit()
                 logger.info('emptying %s', tra['tradeNid'])
             else:
                 today = str(datetime.datetime.now())[5:10]
                 mark_memo = u' 不采购: ' + tra['purchaser'] + today + ':' + tra['sku'] + tra['goodsSkuStatus'] + ';'
                 new_memo = origin_memo + mark_memo
                 cur.execute(update_memo, (new_memo, tra['tradeNid']))
+                con.commit()
                 logger.info('marking %s', tra['tradeNid'])
-        con.commit()
 
 
 def handle_exception_trades():
