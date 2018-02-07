@@ -2,24 +2,13 @@
 # coding=utf8
 
 import datetime
-import logging
 import re
 
 
 from db_connection import MsSQL
+from log import logger
 
 db = MsSQL()
-
-logger = logging.getLogger('purchasing')
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger.setLevel(logging.INFO)
-console = logging.StreamHandler()
-console.setFormatter(formatter)
-# file_handler = logging.FileHandler("/home/youran/james/log/mark_trade.log")
-file_handler = logging.FileHandler("D:/log/purchasing.log")
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-logger.addHandler(console)
 
 
 def filter_trade():
