@@ -14,27 +14,39 @@ db = MsSQL()
 def filter_trade():
     """ filter of trade via sku statutes """
     filter_procedure = "z_testhaha '7','春节放假,清仓,停产,停售,线下清仓'"
-    update_memo = "update p_tradeUn set memo = %s where nid = %s"
+    update_memo = "update p_tradeUn set memo = %s, reasonCode = %s where nid = %s"
     empty_mark = "update p_tradeUn set reasonCode = '', memo = %s where nid = %s"
+    today = str(datetime.datetime.now())[5:10]
+    pattern = u'不采购: .*;'
+    mark_trades = dict()  # {nid:[mark_memo,memo],}
     with db as con:
         cur = con.cursor(as_dict=True)
         cur.execute(filter_procedure)
         filter_trades = cur
         for tra in filter_trades:
             memo = tra['memo']
-            pattern = u'不采购: .*;'
             origin_memo = re.sub(unicode(pattern), '', memo)
             if tra['which'] == 'pre':
                 cur.execute(empty_mark, (origin_memo, tra['tradeNid']))
                 con.commit()
                 logger.info('emptying %s', tra['tradeNid'])
             else:
-                today = str(datetime.datetime.now())[5:10]
-                mark_memo = u' 不采购: ' + tra['purchaser'] + today + ':' + tra['sku'] + tra['goodsSkuStatus'] + ';'
-                new_memo = origin_memo + mark_memo
-                cur.execute(update_memo, (new_memo, tra['tradeNid']))
-                con.commit()
-                logger.info('marking %s', tra['tradeNid'])
+                mark_memo = u'不采购: ' + tra['purchaser'] + today + ':' + tra['sku'] + tra['goodsSkuStatus'] + ';'
+                trade = {
+                    'tradeNid': tra['tradeNid'],
+                    'mark_memo': mark_memo,
+                    'origin_memo': origin_memo,
+                    'reasonCode': tra['howPur']
+                }
+                if tra['tradeNid'] in mark_trades:
+                    mark_trades[tra['tradeNid']]['mark_memo'] += mark_memo
+                else:
+                    mark_trades[tra['tradeNid']] = trade
+        for mar in mark_trades.values():
+            new_memo = mar['origin_memo'] + mar['mark_memo']
+            cur.execute(update_memo, (new_memo, mar['reasonCode'], mar['tradeNid']))
+            con.commit()
+            logger.info('marking %s', tra['tradeNid'])
 
 
 def handle_exception_trades():
