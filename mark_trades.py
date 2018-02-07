@@ -13,7 +13,7 @@ db = MsSQL()
 
 def filter_trade():
     """ filter of trade via sku statutes """
-    filter_procedure = "z_testhaha '7','春节放假,清仓,停产,停售,线下清仓'"
+    filter_procedure = "www_outofstock_sku '7','春节放假,清仓,停产,停售,线下清仓'"
     update_memo = "update p_tradeUn set memo = %s, reasonCode = %s where nid = %s"
     empty_mark = "update p_tradeUn set reasonCode = '', memo = %s where nid = %s"
     today = str(datetime.datetime.now())[5:10]
