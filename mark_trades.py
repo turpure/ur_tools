@@ -18,16 +18,17 @@ def filter_trade():
     empty_mark = "update p_tradeUn set reasonCode = '', memo = %s where nid = %s"
     today = str(datetime.datetime.now())[5:10]
     pattern = u'不采购: .*;'
-    mark_trades = dict()  # {nid:[mark_memo,memo],}
     with db as con:
+        mark_trades = dict()  # {nid:[mark_memo,memo],}
         cur = con.cursor(as_dict=True)
+        update_cur = con.cursor()
         cur.execute(filter_procedure)
-        filter_trades = cur
+        filter_trades = cur.fetchall()
         for tra in filter_trades:
             memo = tra['memo']
             origin_memo = re.sub(unicode(pattern), '', memo)
             if tra['which'] == 'pre':
-                cur.execute(empty_mark, (origin_memo, tra['tradeNid']))
+                update_cur.execute(empty_mark, (origin_memo, tra['tradeNid']))
                 con.commit()
                 logger.info('emptying %s', tra['tradeNid'])
             else:
