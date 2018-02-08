@@ -47,7 +47,7 @@ def filter_trade():
             new_memo = mar['origin_memo'] + mar['mark_memo']
             cur.execute(update_memo, (new_memo, mar['reasonCode'], mar['tradeNid']))
             con.commit()
-            logger.info('marking %s', tra['tradeNid'])
+            logger.info('marking %s', mar['tradeNid'])
 
 
 def handle_exception_trades():
