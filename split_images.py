@@ -2,12 +2,14 @@
 # coding:utf8
 
 import csv
+import re
 from db_connection import MsSQL
+from images import images
 
 db = MsSQL()
 
 
-def split_images():
+def split_oa_images():
     sql = ("select SKU,extra_images from oa_goodsinfo as ofo "
             "LEFT JOIN oa_wishgoods as ogs on ofo.pid = ogs.infoid "
             "where completeStatus like '%wish%'")
@@ -22,17 +24,27 @@ def split_images():
             yield target
 
 
+def split_ibay_images():
+    for row in images:
+        out = list()
+        out.append(row[0])
+        ima = re.findall(r'(http.*?.jpg)', row[1])
+        out.extend(ima)
+        yield out
+
+
 def export_csv(rows):
     """
     :param rows:
     :return:
     """
-    with open('D:\wish_images.csv', 'wb') as f:
+    with open('D:\ibay_images.csv', 'wb') as f:
         writer = csv.writer(f)
         for row in rows:
             writer.writerow(row)
 
 
 if __name__ == "__main__":
-    images = split_images()
-    export_csv(images)
+    rows = split_ibay_images()
+    export_csv(rows)
+
