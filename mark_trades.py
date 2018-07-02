@@ -72,7 +72,7 @@ def handle_exception_trades():
             trades = cur
             for row in trades:
                 marked_days = calculate_mark_day(row['memo'])
-                if marked_days >= 3:
+                if marked_days >= 5:
                     try:
                         cur.execute(max_bill_code_query)
                         max_bill_code = cur.fetchone()['MaxBillCode']
@@ -99,10 +99,11 @@ def calculate_mark_day(memo):
     today = datetime.datetime.now()
     delta_day = (today-mark_day).days
     if delta_day < 0:
-        delta_day = 3
+        delta_day = 5
     return delta_day
 
 
 if __name__ == '__main__':
+    handle_exception_trades()
     filter_trade()
 
