@@ -8,8 +8,6 @@ import re
 from db_connection import MsSQL
 from log import logger
 
-db = MsSQL()
-
 
 def filter_trade():
     """ filter of trade via sku statutes """
@@ -18,7 +16,7 @@ def filter_trade():
     empty_mark = "update p_tradeUn set reasonCode = '', memo = %s where nid = %s"
     today = str(datetime.datetime.now())[5:10]
     pattern = u'不采购: .*;'
-    with db as con:
+    with MsSQL() as con:
         mark_trades = dict()  # {nid:[mark_memo,memo],}
         cur = con.cursor(as_dict=True)
         update_cur = con.cursor()
@@ -65,7 +63,7 @@ def handle_exception_trades():
     max_bill_code_query = "P_S_CodeRuleGet 130,''"
     exception_trade_handler = "P_ExceptionTradeToException %s, 3 ,'取消订单', '%s'"
 
-    with db as con:
+    with MsSQL() as con:
         cur = con.cursor(as_dict=True)
         try:
             cur.execute(trans_trade)
